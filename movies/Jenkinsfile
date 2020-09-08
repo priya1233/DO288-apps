@@ -83,9 +83,9 @@ pipeline {
                     }
                 }
                 sh '''
-                        oc project ${DEV_PROJECT}
-                        oc new-app --name ${APP_NAME} -i ${APP_NAME}:latest
-                        oc expose svc ${APP_NAME}
+                        oc project "${DEV_PROJECT}"
+                        oc new-app --name "${APP_NAME}" -i "${APP_NAME}":latest
+                        oc expose svc "${APP_NAME}"
                    '''
                 // TODO: Create a new OpenShift application based on the ${APP_NAME}:latest image stream
                 // TODO: Expose the ${APP_NAME} service for external access
@@ -95,8 +95,11 @@ pipeline {
         stage('Wait for deployment in DEV env') {
             //TODO: Watch deployment until pod is in 'Running' state
                 sh '''
-                        openshift.withProject() {
-//                             def deployment = openshift.selector("dc", "${APP_NAME}").
+                        openshift.withProject( "${DEV_PROJECT}" ) {
+                             def deployment = openshift.selector("dc", "${APP_NAME}").rollout()
+                             openshift.selector("dc", "${APP_NAME}").related('pods').untilEach(1) {
+                             return (it.object().status.phase == "Running")
+                          }
                         }
                    '''
         }
@@ -109,6 +112,7 @@ pipeline {
                 script {
                     openshift.withCluster() {
                     // TODO: Tag the ${APP_NAME}:latest image stream in the dev env as ${APP_NAME}:stage in staging
+                    openshift.tag("${DEV_PROJECT}/${APP_NAME}:latest", "${STAGE_PROJECT}/${APP_NAME}:stage")
                     }
                 }
             }
@@ -125,6 +129,11 @@ pipeline {
 
                 echo '### Creating a new app in Staging ###'
                 // TODO: Create a new app in staging and expose the service
+                sh '''
+                        oc project "${STAGE_PROJECT}"
+                        oc new-app --name "${APP_NAME}" -i "${APPNAME}:stage"
+                        oc expose svc/${APP_NAME}
+                   '''
             }
         }
 
