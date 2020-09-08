@@ -94,6 +94,7 @@ pipeline {
 
         stage('Wait for deployment in DEV env') {
             //TODO: Watch deployment until pod is in 'Running' state
+             steps {
                 sh '''
                         openshift.withProject( "${DEV_PROJECT}" ) {
                              def deployment = openshift.selector("dc", "${APP_NAME}").rollout()
@@ -102,6 +103,7 @@ pipeline {
                           }
                         }
                    '''
+                 }
         }
 
         stage('Promote to Staging Env') {
