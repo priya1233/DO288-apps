@@ -91,6 +91,7 @@ pipeline {
                 // TODO: Expose the ${APP_NAME} service for external access
             }
         }
+
         stage('Wait for deployment in DEV env') {
             steps {
                 script {
