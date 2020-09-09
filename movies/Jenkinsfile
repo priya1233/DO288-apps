@@ -15,7 +15,7 @@ pipeline {
         DEV_PROJECT = "priyabhusari1-movies-dev"
         STAGE_PROJECT = "priyabhusari1-movies-stage"
         APP_GIT_URL = "https://github.com/priya1233/DO288-apps"
-        NEXUS_SERVER = "http://nexus-common.apps.ocp-ap3.prod.nextcle.com/repository/java"
+        NEXUS_SERVER = "http://nexus-common.apps.ocp.ap45.prod.nextcle.com/repository/java"
 
         // DO NOT CHANGE THE GLOBAL VARS BELOW THIS LINE
         APP_NAME = "movies"
@@ -59,7 +59,7 @@ pipeline {
                 echo '### Creating fat JAR ###'
                 sh '''
                         cd ${APP_NAME}
-                        mvn -s settings.xml -B package -DskipTests=true
+                        mvn -s settings.xml -B clean package -DskipTests=true
                    '''
             }
         }
@@ -78,7 +78,7 @@ pipeline {
                 script {
                     openshift.withCluster() {
                       openshift.withProject(env.DEV_PROJECT) {
-                        openshift.selector("bc", "${APP_NAME}").startBuild("--from-file=${APP_NAME}/target/${APP_NAME}.jar", "--wait=true", "--follow=true", "--source-secret=githubPriya")
+                        openshift.selector("bc", "${APP_NAME}").startBuild("--from-file=${APP_NAME}/target/${APP_NAME}.jar", "--wait=true", "--follow=true")
                       }
                     }
                 }
