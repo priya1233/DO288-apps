@@ -59,7 +59,7 @@ pipeline {
                 echo '### Creating fat JAR ###'
                 sh '''
                         cd ${APP_NAME}
-                        mvn -s settings.xml -B clean package -DskipTests=true
+                        mvn -s settings.xml -B package -DskipTests=true
                    '''
             }
         }
@@ -84,7 +84,7 @@ pipeline {
                 }
                 sh '''
                         oc project "${DEV_PROJECT}"
-                        oc new-app --name "${APP_NAME}" -i "${APP_NAME}":latest
+                        oc new-app "${APP_NAME}":latest
                         oc expose svc "${APP_NAME}"
                    '''
                 // TODO: Create a new OpenShift application based on the ${APP_NAME}:latest image stream
